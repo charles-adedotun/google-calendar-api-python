@@ -73,7 +73,7 @@ def get_available_slots(calendar_id, desired_start, duration, num_slots=3):
             available_slots.append((current_time, potential_end_time))
         current_time = current_time + timedelta(minutes=30)  # Check every 30 minutes
         
-    return available_slots
+    return [slot[0].strftime('%Y-%m-%dT%H:%M:%SZ') for slot in available_slots]
 
 def schedule_meeting(calendar_id, meeting_title, meeting_description, start_date, end_date, time_zone, attendee_email):
     try:
