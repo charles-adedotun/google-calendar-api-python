@@ -42,9 +42,9 @@ def book_or_suggest_appointment(attendee_email, desired_start, duration):
 # duration = int(input("Enter the duration of the meeting in minutes: "))
 
 # Test the function
-attendee_email = "attendee-6@example.com"
-desired_start = "2023-09-17T10:00:00"
-duration = int(60)
+attendee_email = "attendee-7@example.com"
+desired_start = "2023-09-17T11:00:00"
+duration = int(30)
 
 desired_start = desired_start if desired_start.endswith('Z') else desired_start + 'Z'
 
