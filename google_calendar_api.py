@@ -1,16 +1,10 @@
-import json
 from google.oauth2.service_account import Credentials
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from datetime import datetime, timedelta
 import pytz
+from config import logger, SUBJECT_EMAIL, creds_data
 
-# Load credentials
-with open('credentials.json', 'r') as f:
-    creds_data = json.load(f)
-
-# Impersonate user
-SUBJECT_EMAIL = 'charles@tryneublink.com'
 creds = Credentials.from_service_account_info(creds_data, scopes=[
     'https://www.googleapis.com/auth/calendar',
     'https://www.googleapis.com/auth/calendar.events'
@@ -94,6 +88,43 @@ def schedule_meeting(calendar_id, meeting_title, meeting_description, start_date
             'attendees': [{'email': attendee_email}],
             'sendUpdates': 'all',
         }
+        created_event = service.events().insert(calendarId=calendar_id, body=event).execute()
+        
+        # Log the event creation
+        logger.info(f"Created event with ID: {created_event['id']}")
+        
+        # return f"Created event with ID: {created_event['id']}"
         return service.events().insert(calendarId=calendar_id, body=event).execute()
     except HttpError as e:
         raise Exception(f"Could not create event: {e}")
+
+def update_appointment(calendar_id, event_id, new_start, duration, meeting_title, meeting_description, time_zone):
+    try:
+        # Fetch the existing event
+        event = service.events().get(calendarId=calendar_id, eventId=event_id).execute()
+
+        # Update the event details
+        event['start']['dateTime'] = new_start
+        event['end']['dateTime'] = (datetime.fromisoformat(new_start) + timedelta(minutes=duration)).isoformat()
+        event['start']['timeZone'] = time_zone
+        event['end']['timeZone'] = time_zone
+        event['summary'] = meeting_title
+        event['description'] = meeting_description
+
+        # Use the API to update the event
+        updated_event = service.events().update(calendarId=calendar_id, eventId=event_id, body=event).execute()
+
+        return f"Event updated successfully: {updated_event['htmlLink']}"
+
+    except HttpError as e:
+        raise Exception(f"Could not update event: {e}")
+
+def delete_appointment(calendar_id, event_id):
+    try:
+        # Use the API to delete the event
+        service.events().delete(calendarId=calendar_id, eventId=event_id).execute()
+
+        return f"Event deleted successfully."
+
+    except HttpError as e:
+        raise Exception(f"Could not delete event: {e}")

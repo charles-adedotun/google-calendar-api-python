@@ -1,6 +1,6 @@
-from fastapi import APIRouter, HTTPException, Depends
-from .models import Appointment
-from .utils import book_appointment, update_appointment, delete_appointment
+from fastapi import APIRouter, HTTPException
+from .models import Appointment, DeleteAppointment
+from .utils import book_appointment, update_appointment_util, delete_appointment_util
 import logging
 
 router = APIRouter()
@@ -22,10 +22,17 @@ async def create_appointment(appointment: Appointment):
         appointment.time_zone
     )
 
-@router.put("/update-appointment/{event_id}/")
-async def update_appointment_endpoint(event_id: str, appointment: Appointment, response: dict = Depends(handle_response)):
-    return update_appointment(event_id, appointment.desired_start, appointment.duration, appointment.meeting_title, appointment.meeting_description, appointment.time_zone)
+@router.put("/update-appointment/")
+async def update_appointment_endpoint(appointment: Appointment):
+    return update_appointment_util(
+        appointment.event_id,
+        appointment.desired_start,
+        appointment.duration,
+        appointment.meeting_title,
+        appointment.meeting_description,
+        appointment.time_zone
+    )
 
-@router.delete("/delete-appointment/{event_id}/")
-async def delete_appointment_endpoint(event_id: str, response: dict = Depends(handle_response)):
-    return delete_appointment(event_id)
+@router.delete("/delete-appointment/")
+async def delete_appointment_endpoint(appointment: DeleteAppointment):
+    return delete_appointment_util(appointment.event_id)
