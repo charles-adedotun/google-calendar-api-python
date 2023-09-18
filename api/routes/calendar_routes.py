@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException
-from .models import Appointment, DeleteAppointment
-from .utils import book_appointment, update_appointment_util, delete_appointment_util
+from ..models import Appointment, DeleteAppointment
+from api.utils.calendar_manager import book_appointment, update_appointment_util, delete_appointment_util
 import logging
 
 router = APIRouter()

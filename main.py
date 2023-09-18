@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from api.calendar_routes import router as calendar_router
+from api.routes.calendar_routes import router as calendar_router
 
 app = FastAPI()
 

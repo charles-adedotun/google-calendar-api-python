@@ -4,6 +4,7 @@ from googleapiclient.errors import HttpError
 from datetime import datetime, timedelta
 import pytz
 from config import logger, SUBJECT_EMAIL, creds_data
+from api.utils.helpers import convert_to_timezone, get_utc_time
 
 creds = Credentials.from_service_account_info(creds_data, scopes=[
     'https://www.googleapis.com/auth/calendar',
@@ -71,15 +72,19 @@ def get_available_slots(calendar_id, desired_start, duration, num_slots=3):
 
 def schedule_meeting(calendar_id, meeting_title, meeting_description, start_date, end_date, time_zone, attendee_email):
     try:
+        # Convert the start_date and end_date to the appropriate timezone format
+        start_date_local = convert_to_timezone(start_date, time_zone)
+        end_date_local = convert_to_timezone(end_date, time_zone)
+
         event = {
             'summary': meeting_title,
             'description': meeting_description,
             'start': {
-                'dateTime': start_date,
+                'dateTime': start_date_local,
                 'timeZone': time_zone,
             },
             'end': {
-                'dateTime': end_date,
+                'dateTime': end_date_local,
                 'timeZone': time_zone,
             },
             'reminders': {
@@ -92,9 +97,9 @@ def schedule_meeting(calendar_id, meeting_title, meeting_description, start_date
         
         # Log the event creation
         logger.info(f"Created event with ID: {created_event['id']}")
-        
-        # return f"Created event with ID: {created_event['id']}"
-        return service.events().insert(calendarId=calendar_id, body=event).execute()
+
+        return created_event
+
     except HttpError as e:
         raise Exception(f"Could not create event: {e}")
 
@@ -104,8 +109,12 @@ def update_appointment(calendar_id, event_id, new_start, duration, meeting_title
         event = service.events().get(calendarId=calendar_id, eventId=event_id).execute()
 
         # Update the event details
-        event['start']['dateTime'] = new_start
-        event['end']['dateTime'] = (datetime.fromisoformat(new_start) + timedelta(minutes=duration)).isoformat()
+        new_start_local = convert_to_timezone(new_start, time_zone)
+        new_end = (datetime.fromisoformat(new_start) + timedelta(minutes=duration)).isoformat()
+        new_end_local = convert_to_timezone(new_end, time_zone)
+
+        event['start']['dateTime'] = new_start_local
+        event['end']['dateTime'] = new_end_local
         event['start']['timeZone'] = time_zone
         event['end']['timeZone'] = time_zone
         event['summary'] = meeting_title
@@ -114,7 +123,10 @@ def update_appointment(calendar_id, event_id, new_start, duration, meeting_title
         # Use the API to update the event
         updated_event = service.events().update(calendarId=calendar_id, eventId=event_id, body=event).execute()
 
-        return f"Event updated successfully: {updated_event['htmlLink']}"
+        # Log the event update
+        logger.info(f"Updated event with ID: {updated_event['id']}")
+
+        return updated_event
 
     except HttpError as e:
         raise Exception(f"Could not update event: {e}")
