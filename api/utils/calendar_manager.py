@@ -1,6 +1,6 @@
 from services.google_calendar import (
     get_existing_event_for_attendee, get_available_slots, schedule_meeting,
-    get_overlapping_events, update_appointment, delete_appointment
+    get_overlapping_events, update_appointment, delete_appointment, get_upcoming_events
 )
 from .time_helpers import get_utc_time, convert_to_timezone
 import datetime
@@ -54,3 +54,9 @@ def delete_appointment_util(event_id: str):
             "status": "error",
             "message": str(e)
         }
+
+def get_upcoming(max_results):
+    try:
+        return get_upcoming_events(CALENDAR_ID, max_results)
+    except Exception as e:
+        raise e

@@ -144,3 +144,18 @@ def delete_appointment(calendar_id, event_id):
 
     except HttpError as e:
         raise Exception(f"Could not delete event: {e}")
+
+def get_upcoming_events(calendar_id, max_results):
+    try:
+        # Get current time in RFC3339 format
+        now = datetime.utcnow().isoformat() + 'Z'
+
+        # Fetch upcoming events after the current time
+        events_result = service.events().list(calendarId=calendar_id, timeMin=now, maxResults=max_results, singleEvents=True, orderBy='startTime').execute()
+        events = events_result.get('items', [])
+
+        # Return the fetched events
+        return events
+
+    except HttpError as e:
+        raise Exception(f"Could not fetch upcoming events: {e}")

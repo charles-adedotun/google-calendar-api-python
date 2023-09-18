@@ -1,10 +1,10 @@
 from fastapi import APIRouter, HTTPException
-from ..models import Appointment, DeleteAppointment
-from api.utils.calendar_manager import book_appointment, update_appointment_util, delete_appointment_util
-import logging
+from typing import List
+from api.models import Appointment, DeleteAppointment
+from api.utils.calendar_manager import book_appointment, update_appointment_util, delete_appointment_util, get_upcoming
+from config import CALENDAR_ID
 
 router = APIRouter()
-logger = logging.getLogger(__name__)
 
 def handle_response(response: dict = None):
     if response and response.get('status') == 'error':
@@ -36,3 +36,11 @@ async def update_appointment_endpoint(appointment: Appointment):
 @router.delete("/delete-appointment/")
 async def delete_appointment_endpoint(appointment: DeleteAppointment):
     return delete_appointment_util(appointment.event_id)
+
+@router.get("/upcoming-events/")
+async def get_upcoming_events(max_results: int = 3):
+    try:
+        upcoming_events = get_upcoming(max_results)
+        return upcoming_events
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
