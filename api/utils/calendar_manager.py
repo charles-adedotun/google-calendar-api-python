@@ -2,7 +2,7 @@ from services.google_calendar import (
     get_existing_event_for_attendee, get_available_slots, schedule_meeting,
     get_overlapping_events, update_appointment, delete_appointment
 )
-from .helpers import get_utc_time, convert_to_timezone
+from .time_helpers import get_utc_time, convert_to_timezone
 import datetime
 from config import CALENDAR_ID
 
@@ -31,7 +31,7 @@ def book_appointment(attendee_email: str, desired_start: str, duration: int = 30
             time_zone,
             attendee_email
         )
-        return f"Event created successfully: {event['htmlLink']}"
+        return event
 
 def update_appointment_util(event_id: str, new_start: str, duration: int, meeting_title: str, meeting_description: str, time_zone: str = "America/Chicago"):
     try:

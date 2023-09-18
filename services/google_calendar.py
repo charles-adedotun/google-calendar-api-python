@@ -4,7 +4,7 @@ from googleapiclient.errors import HttpError
 from datetime import datetime, timedelta
 import pytz
 from config import logger, SUBJECT_EMAIL, creds_data
-from api.utils.helpers import convert_to_timezone, get_utc_time
+from api.utils.time_helpers import convert_to_timezone, get_utc_time
 
 creds = Credentials.from_service_account_info(creds_data, scopes=[
     'https://www.googleapis.com/auth/calendar',
@@ -133,10 +133,14 @@ def update_appointment(calendar_id, event_id, new_start, duration, meeting_title
 
 def delete_appointment(calendar_id, event_id):
     try:
-        # Use the API to delete the event
+        # Delete the event
         service.events().delete(calendarId=calendar_id, eventId=event_id).execute()
 
-        return f"Event deleted successfully."
+        # Return a confirmation message and the ID of the deleted event
+        return {
+            "message": "Event deleted successfully.",
+            "event_id": event_id
+        }
 
     except HttpError as e:
         raise Exception(f"Could not delete event: {e}")
