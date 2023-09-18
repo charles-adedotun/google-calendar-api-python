@@ -188,3 +188,4 @@ data/
 .DS_Store
 
 credentials.json
+node_modules
