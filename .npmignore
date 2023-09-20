@@ -212,4 +212,4 @@ var/
 # Serverless directories
 .serverless
 
-build.toml
+deploy/

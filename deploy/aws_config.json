@@ -1,0 +1,7 @@
+{
+    "s3_bucket": "google-calendar-api-bucket-3",
+    "function_name": "google-calendar-api-function",
+    "api_name": "google-calendar-api",
+    "region": "us-east-1",
+    "secrets_name": "google_calendar_api_secrets_1"
+}
