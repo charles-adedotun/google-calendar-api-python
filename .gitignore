@@ -213,3 +213,5 @@ var/
 .serverless
 
 build.toml
+
+.aws-sam
