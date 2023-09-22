@@ -51,11 +51,12 @@ def get_available_slots(calendar_id, desired_start, duration, num_slots=3):
     end_of_day = "18:00:00"  # 6 PM
     start_time_obj = datetime.fromisoformat(desired_start)
     end_of_day_obj = datetime.combine(start_time_obj.date(), datetime.strptime(end_of_day, "%H:%M:%S").time())
-    current_time = current_time = datetime.strptime(desired_start, "%Y-%m-%dT%H:%M:%SZ")
+    current_time = datetime.fromisoformat(desired_start)
 
     # Localize datetime objects to UTC timezone
     utc = pytz.UTC
     current_time = current_time.replace(tzinfo=utc)
+    start_time_obj = start_time_obj.replace(tzinfo=utc)  # <-- This line is added
     end_of_day_obj = end_of_day_obj.replace(tzinfo=utc)
     
     available_slots = []
